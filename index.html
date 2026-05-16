@@ -6,6 +6,11 @@
 <title>CartZero — We give New York City its air back.</title>
 <meta name="description" content="Clean battery power for NYC food cart vendors. Replace gasoline generators. Swap at your commissary. From $4.30/day.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23070e1a'/%3E%3Ctext x='16' y='22' font-family='Arial Black,sans-serif' font-size='14' font-weight='900' fill='%23FF8C42' text-anchor='middle'%3ECZ%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#070e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -283,5 +288,6 @@ body::before {
   <div class="footer-text">© 2026 CartZero · Eclectic Consulting · <a href="https://cartzero.global">cartzero.global</a></div>
 </footer>
 
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js");</script>
 </body>
 </html>
