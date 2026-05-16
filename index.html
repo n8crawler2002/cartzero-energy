@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CartZero — We give New York City its air back.</title>
+<meta name="description" content="Clean battery power for NYC food cart vendors. Replace gasoline generators. Swap at your commissary. From $4.30/day.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23070e1a'/%3E%3Ctext x='16' y='22' font-family='Arial Black,sans-serif' font-size='14' font-weight='900' fill='%23FF8C42' text-anchor='middle'%3ECZ%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #070e1a;
+  --bg-card: #0d1520;
+  --bg-card-hover: #111c2a;
+  --accent-green: #00e68a;
+  --accent-orange: #ff8c42;
+  --text-primary: #e8ecf1;
+  --text-secondary: #7a8b9d;
+  --text-dim: #4a5a6a;
+  --border: #182535;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Mulish', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- GRAIN --- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- LAYOUT --- */
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 40px;
+  width: 100%;
+}
+
+/* --- HERO --- */
+.logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  margin-bottom: 40px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.logo .cart { color: var(--text-primary); }
+.logo .zero { color: var(--accent-orange); }
+
+.tagline {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  animation: fadeIn 0.5s ease-out 0.1s both;
+}
+
+.tagline .green { color: var(--accent-green); }
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 48px;
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+/* --- CARDS --- */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 48px;
+  animation: fadeIn 0.5s ease-out 0.3s both;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(0, 230, 138, 0.15);
+  transform: translateY(-2px);
+}
+
+.card:hover::before { opacity: 1; }
+
+.card.green::before { background: var(--accent-green); }
+.card.orange::before { background: var(--accent-orange); }
+.card.blue::before { background: #4da6ff; }
+.card.purple::before { background: #a78bfa; }
+
+.card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.card-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.card-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 14px;
+  transition: color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.card:hover .card-arrow {
+  color: var(--accent-green);
+  transform: translateX(4px);
+}
+
+/* --- FULL WIDTH CARD --- */
+.card-wide {
+  grid-column: 1 / -1;
+}
+
+/* --- BOTTOM --- */
+.bottom-line {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  line-height: 1.8;
+  animation: fadeIn 0.5s ease-out 0.4s both;
+}
+
+.bottom-line a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bottom-line a:hover { color: var(--accent-green); }
+
+/* --- FOOTER --- */
+.footer {
+  padding: 20px 24px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.footer-text a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 480px) {
+  .cards { grid-template-columns: 1fr; }
+  .card-wide { grid-column: auto; }
+  .page { padding: 36px 20px 32px; justify-content: flex-start; padding-top: 48px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="logo">
+    <span class="cart">CART</span><span class="zero">ZERO.</span>
+  </div>
+
+  <h1 class="tagline">We give New York City<br>its <span class="green">air</span> back.</h1>
+
+  <p class="subtitle">Clean battery power replacing gasoline generators on NYC food carts. Swap daily at your commissary. Charged on 100% renewable electricity.</p>
+
+  <div class="cards">
+    <a href="join" class="card green">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">I'm a vendor</div>
+      <div class="card-desc">Replace your gas generator. See your savings. Sign up.</div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a href="discover" class="card purple">
+      <div class="card-icon">🌳</div>
+      <div class="card-title">What is this?</div>
+      <div class="card-desc">Learn what CartZero does and how you can support clean air in NYC.</div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a href="dashboard" class="card orange">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Operations</div>
+      <div class="card-desc">Fleet status, revenue, AI insights. The operator view.</div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a href="map" class="card blue">
+      <div class="card-icon">🗺️</div>
+      <div class="card-title">NYC Impact Map</div>
+      <div class="card-desc">Electrified Blocks. Borough by borough, the city turns green.</div>
+      <span class="card-arrow">→</span>
+    </a>
+  </div>
+
+  <div class="bottom-line">
+    LiFePO4 battery swap · Commissary-based distribution · AMPECO CPMS over OCPP<br>
+    <a href="https://cartzero.global">cartzero.global</a> · <a href="mailto:hello@cartzero.energy">hello@cartzero.energy</a> · <a href="https://www.linkedin.com/company/cartzero-energy">LinkedIn</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-text">© 2026 CartZero · Eclectic Consulting · <a href="https://cartzero.global">cartzero.global</a></div>
+</footer>
+
+</body>
+</html>

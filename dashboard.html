@@ -650,7 +650,7 @@ body::before {
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-left">
-    <div class="nav-logo"><span class="cart">CART</span><span class="zero">ZERO.</span></div>
+    <a href="/" class="nav-logo" style="text-decoration:none;"><span class="cart">CART</span><span class="zero">ZERO.</span></a>
     <div class="nav-divider"></div>
     <span class="nav-label">Operations</span>
   </div>
@@ -793,8 +793,8 @@ body::before {
 
 <script>
 // === TIME FORMAT ===
-const timeFmt = { hour: 'numeric', minute: '2-digit', hour12: true };
-const timeFmtSec = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
+const timeFmt = { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/New_York' };
+const timeFmtSec = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'America/New_York' };
 
 // === SIMULATED FLEET DATA ===
 // Statuses: "on_street" | "hub_charging" | "hub_ready" | "alert"
