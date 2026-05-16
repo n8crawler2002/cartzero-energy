@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CartZero — Operator Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #070e1a;
+  --bg-card: #0d1520;
+  --bg-card-alt: #111c2a;
+  --bg-row-hover: #131f30;
+  --accent-green: #00e68a;
+  --accent-green-dim: rgba(0, 230, 138, 0.15);
+  --accent-orange: #ff8c42;
+  --accent-orange-dim: rgba(255, 140, 66, 0.15);
+  --accent-red: #ff4d4d;
+  --accent-red-dim: rgba(255, 77, 77, 0.12);
+  --accent-blue: #4da6ff;
+  --accent-blue-dim: rgba(77, 166, 255, 0.12);
+  --text-primary: #e8ecf1;
+  --text-secondary: #7a8b9d;
+  --text-dim: #4a5a6a;
+  --border: #182535;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Mulish', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* --- GRAIN --- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- NAV --- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 20px;
+  background: rgba(7, 14, 26, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.nav-logo .cart { color: var(--text-primary); }
+.nav-logo .zero { color: var(--accent-orange); }
+
+.nav-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+}
+
+.nav-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.nav-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 230, 138, 0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(0, 230, 138, 0); }
+}
+
+/* --- LAYOUT --- */
+.dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+/* --- KPI ROW --- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.kpi {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.kpi.green::after { background: var(--accent-green); }
+.kpi.orange::after { background: var(--accent-orange); }
+.kpi.blue::after { background: var(--accent-blue); }
+.kpi.red::after { background: var(--accent-red); }
+
+.kpi-label {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.kpi.green .kpi-value { color: var(--accent-green); }
+.kpi.orange .kpi-value { color: var(--accent-orange); }
+.kpi.blue .kpi-value { color: var(--accent-blue); }
+.kpi.red .kpi-value { color: var(--text-primary); }
+
+.kpi-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.kpi-trend.up {
+  color: var(--accent-green);
+  background: var(--accent-green-dim);
+}
+
+.kpi-trend.steady {
+  color: var(--accent-orange);
+  background: var(--accent-orange-dim);
+}
+
+/* --- SECTION CARDS --- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.card-period {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+}
+
+/* --- IMPACT METRICS --- */
+.impact-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.impact-metric { text-align: center; }
+
+.impact-icon {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.impact-val {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--accent-green);
+  letter-spacing: -0.02em;
+}
+
+.impact-label {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+/* --- REVENUE --- */
+.rev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rev-item {}
+
+.rev-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.rev-val {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.rev-val.green { color: var(--accent-green); }
+.rev-val.orange { color: var(--accent-orange); }
+
+.rev-sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* --- MARGIN BAR --- */
+.margin-bar-wrap {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.margin-bar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.margin-bar-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.margin-bar-pct {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--accent-green);
+}
+
+.margin-bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.margin-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-green), #00cc7a);
+  transition: width 1s ease;
+}
+
+/* --- FLEET TABLE --- */
+.fleet-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fleet-table th {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 0 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fleet-table th:last-child { text-align: right; }
+
+.fleet-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(24, 37, 53, 0.5);
+  font-size: 0.78rem;
+  vertical-align: middle;
+}
+
+.fleet-table tr:hover td { background: var(--bg-row-hover); }
+
+.vendor-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.vendor-id {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+}
+
+.vendor-loc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.vendor-tier {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.tier-bronze { color: #cd9a6b; background: rgba(205, 154, 107, 0.12); }
+.tier-silver { color: #a8b8c8; background: rgba(168, 184, 200, 0.12); }
+.tier-gold { color: #f0c040; background: rgba(240, 192, 64, 0.12); }
+.tier-plat { color: #b8d0f0; background: rgba(184, 208, 240, 0.12); }
+
+/* --- SOC BAR --- */
+.soc-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.soc-bar {
+  width: 40px;
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.soc-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.soc-fill.high { background: var(--accent-green); }
+.soc-fill.mid { background: var(--accent-orange); }
+.soc-fill.low { background: var(--accent-red); }
+
+.soc-pct {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  min-width: 30px;
+  text-align: right;
+}
+
+.soc-pct.high { color: var(--accent-green); }
+.soc-pct.mid { color: var(--accent-orange); }
+.soc-pct.low { color: var(--accent-red); }
+
+/* --- STATUS DOT --- */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-active { background: var(--accent-green); box-shadow: 0 0 6px rgba(0, 230, 138, 0.4); }
+.status-charging { background: var(--accent-blue); box-shadow: 0 0 6px rgba(77, 166, 255, 0.4); }
+.status-ready { background: var(--accent-orange); }
+.status-alert { background: var(--accent-red); box-shadow: 0 0 6px rgba(255, 77, 77, 0.4); animation: pulse 1.5s ease-in-out infinite; }
+.status-idle { background: var(--text-dim); }
+
+.status-text {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+.status-text.alert-text { color: var(--accent-red); font-weight: 600; }
+
+/* --- AI INSIGHTS --- */
+.ai-card {
+  background: linear-gradient(135deg, rgba(0, 230, 138, 0.04) 0%, rgba(77, 166, 255, 0.04) 100%);
+  border: 1px solid rgba(0, 230, 138, 0.15);
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--accent-green);
+  background: var(--accent-green-dim);
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.ai-badge .ai-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.insight {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(24, 37, 53, 0.5);
+}
+
+.insight:last-child { border-bottom: none; }
+
+.insight-icon {
+  font-size: 1.1rem;
+  min-width: 22px;
+  text-align: center;
+  padding-top: 1px;
+}
+
+.insight-body { flex: 1; }
+
+.insight-text {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.insight-text strong { color: var(--text-primary); font-weight: 600; }
+
+.insight-action {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.68rem;
+  color: var(--accent-green);
+  background: var(--accent-green-dim);
+  border: 1px solid rgba(0, 230, 138, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+
+.insight-action:hover {
+  background: rgba(0, 230, 138, 0.2);
+}
+
+.insight-action.red {
+  color: var(--accent-red);
+  background: var(--accent-red-dim);
+  border-color: rgba(255, 77, 77, 0.2);
+}
+
+.insight-action.red:hover { background: rgba(255, 77, 77, 0.2); }
+
+.insight-conf {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* --- ACTIVITY FEED --- */
+.feed { list-style: none; }
+
+.feed li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(24, 37, 53, 0.5);
+  font-size: 0.78rem;
+}
+
+.feed li:last-child { border-bottom: none; }
+
+.feed-icon {
+  font-size: 1rem;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
+  padding-top: 1px;
+}
+
+.feed-text {
+  flex: 1;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.feed-text strong { color: var(--text-primary); font-weight: 600; }
+
+.feed-time {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* --- FOOTER --- */
+.dash-footer {
+  text-align: center;
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+}
+
+.dash-footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+/* --- RESPONSIVE --- */
+@media (min-width: 640px) {
+  .kpi-row { grid-template-columns: repeat(4, 1fr); }
+  .dashboard { padding: 24px 24px 60px; }
+}
+
+@media (min-width: 800px) {
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .two-col .card { margin-bottom: 0; }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kpi { animation: fadeIn 0.4s ease-out both; }
+.kpi:nth-child(1) { animation-delay: 0s; }
+.kpi:nth-child(2) { animation-delay: 0.05s; }
+.kpi:nth-child(3) { animation-delay: 0.1s; }
+.kpi:nth-child(4) { animation-delay: 0.15s; }
+
+.card { animation: fadeIn 0.4s ease-out 0.2s both; }
+
+/* --- SCROLL on mobile for fleet table --- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo"><span class="cart">CART</span><span class="zero">ZERO.</span></div>
+    <div class="nav-divider"></div>
+    <span class="nav-label">Operations</span>
+  </div>
+  <div class="nav-live">
+    <span class="live-dot"></span>
+    <span id="clock">--:--</span>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="kpi-label">Active Carts</div>
+      <div class="kpi-value" id="kpiActive">--</div>
+      <div class="kpi-sub">of <span id="kpiTotal">--</span> fleet</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-label">Swaps Today</div>
+      <div class="kpi-value" id="kpiSwaps">--</div>
+      <div class="kpi-trend up">&#9650; on track</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">CO₂ Avoided</div>
+      <div class="kpi-value" id="kpiCO2">--</div>
+      <div class="kpi-sub">kg this month</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Uptime</div>
+      <div class="kpi-value" id="kpiUptime">--</div>
+      <div class="kpi-trend up">zero failures</div>
+    </div>
+  </div>
+
+  <!-- REVENUE + IMPACT -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Revenue</span>
+        <span class="card-period" id="revPeriod">--</span>
+      </div>
+      <div class="rev-grid">
+        <div class="rev-item">
+          <div class="rev-label">MRR</div>
+          <div class="rev-val green" id="revMRR">--</div>
+          <div class="rev-sub" id="revBlended">-- blended avg</div>
+        </div>
+        <div class="rev-item">
+          <div class="rev-label">ARR Run Rate</div>
+          <div class="rev-val orange" id="revARR">--</div>
+          <div class="rev-sub">projected annual</div>
+        </div>
+      </div>
+      <div class="margin-bar-wrap">
+        <div class="margin-bar-header">
+          <span class="margin-bar-label">Gross Margin</span>
+          <span class="margin-bar-pct" id="revMargin">--%</span>
+        </div>
+        <div class="margin-bar">
+          <div class="margin-bar-fill" id="marginFill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Impact — This Month</span>
+        <span class="card-period">cumulative</span>
+      </div>
+      <div class="impact-row">
+        <div class="impact-metric">
+          <div class="impact-icon">⛽</div>
+          <div class="impact-val" id="impGal">--</div>
+          <div class="impact-label">gallons<br>not burned</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-icon">🌳</div>
+          <div class="impact-val" id="impTrees">--</div>
+          <div class="impact-label">tree-equivalent<br>CO₂ avoided</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-icon">🔇</div>
+          <div class="impact-val" id="impHours">--</div>
+          <div class="impact-label">hours of noise<br>eliminated</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLEET STATUS -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Fleet Status</span>
+      <span class="card-period" id="fleetUpdate">updated --</span>
+    </div>
+    <div class="table-scroll">
+      <table class="fleet-table">
+        <thead>
+          <tr>
+            <th>Vendor</th>
+            <th>Location</th>
+            <th>Tier</th>
+            <th>Status</th>
+            <th style="text-align:right">Battery</th>
+          </tr>
+        </thead>
+        <tbody id="fleetBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- AI INSIGHTS -->
+  <div class="card ai-card">
+    <div class="card-header">
+      <span class="card-title">AI Insights</span>
+      <span class="ai-badge"><span class="ai-dot"></span> LIVE</span>
+    </div>
+    <div id="aiInsights"></div>
+  </div>
+
+  <!-- ACTIVITY FEED -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Activity Feed</span>
+      <span class="card-period">today</span>
+    </div>
+    <ul class="feed" id="feedList">
+    </ul>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="dash-footer">
+  AMPECO CPMS &middot; OCPP 1.6J &middot; <a href="https://cartzero.energy">cartzero.energy</a>
+</div>
+
+<script>
+// === TIME FORMAT ===
+const timeFmt = { hour: 'numeric', minute: '2-digit', hour12: true };
+const timeFmtSec = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
+
+// === SIMULATED FLEET DATA ===
+// Statuses: "on_street" | "hub_charging" | "hub_ready" | "alert"
+// hub: which commissary hub the battery came from / is at
+const FLEET = [
+  { id: "CZ-001", name: "Ahmed's Halal", street: "Central Park S & 6th", hub: "Midtown Hub", tier: "silver", status: "on_street", soc: 72 },
+  { id: "CZ-002", name: "Maria's Coffee", street: "Broadway & 72nd", hub: "UWS Commissary", tier: "bronze", status: "on_street", soc: 58 },
+  { id: "CZ-003", name: "Wei's Dumplings", street: "Canal St & Mott", hub: "Chinatown Hub", tier: "gold", status: "alert", soc: 38, alert: "BMS temp anomaly — cell #4 reads 42°C" },
+  { id: "CZ-004", name: "Karim's Gyro", street: "W 53rd & 6th Ave", hub: "Midtown Hub", tier: "silver", status: "on_street", soc: 85 },
+  { id: "CZ-005", name: "Juan's Tacos", street: "Roosevelt Ave & 74th", hub: "Queens Hub (Jackson Hts)", tier: "bronze", status: "hub_charging", soc: 23 },
+  { id: "CZ-006", name: "Deepak's Chai", street: "Union Square W", hub: "Midtown Hub", tier: "platinum", status: "on_street", soc: 64 },
+  { id: "CZ-007", name: "Fatima's Falafel", street: "Midtown W 47th", hub: "Midtown Hub", tier: "silver", status: "on_street", soc: 79 },
+  { id: "CZ-008", name: "Big City Snacks #1", street: "Central Park Zoo", hub: "BCS Depot (Bronx)", tier: "gold", status: "on_street", soc: 52 },
+  { id: "CZ-009", name: "Big City Snacks #2", street: "Bethesda Fountain", hub: "BCS Depot (Bronx)", tier: "gold", status: "on_street", soc: 68 },
+  { id: "CZ-010", name: "Liang's Noodles", street: "Flushing Main St", hub: "Queens Hub (Flushing)", tier: "bronze", status: "hub_ready", soc: 100 },
+  { id: "CZ-011", name: "Diego's Churros", street: "Times Sq & 42nd", hub: "Midtown Hub", tier: "silver", status: "on_street", soc: 47 },
+  { id: "CZ-012", name: "Priya's Biryani", street: "Jackson Heights 37th", hub: "Queens Hub (Jackson Hts)", tier: "gold", status: "on_street", soc: 61 },
+];
+
+const TIER_PRICE = { bronze: 129, silver: 179, gold: 249, platinum: 359 };
+const TIER_CLASS = { bronze: "tier-bronze", silver: "tier-silver", gold: "tier-gold", platinum: "tier-plat" };
+
+const STATUS_MAP = {
+  on_street:    { dot: "status-active",   label: "On street" },
+  hub_charging: { dot: "status-charging", label: "Hub — charging" },
+  hub_ready:    { dot: "status-ready",    label: "Hub — ready" },
+  alert:        { dot: "status-alert",    label: "⚠ Alert" },
+};
+
+// === CALCULATIONS ===
+const totalCarts = FLEET.length;
+const activeCarts = FLEET.filter(v => v.status === "on_street").length;
+const swapsToday = activeCarts;
+const daysThisMonth = new Date().getDate();
+const alertCount = FLEET.filter(v => v.status === "alert").length;
+
+const mrr = FLEET.reduce((s, v) => s + TIER_PRICE[v.tier], 0);
+const arr = mrr * 12;
+const blended = (mrr / totalCarts).toFixed(0);
+const margin = 54;
+
+const galMonth = Math.round(totalCarts * 3.5 * daysThisMonth);
+const co2Month = Math.round(galMonth * 8.887);
+const treesMonth = Math.round(co2Month / 21);
+const noiseHours = totalCarts * 8 * daysThisMonth;
+
+// === RENDER ===
+function render() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', timeFmt);
+
+  // KPIs
+  document.getElementById('kpiActive').textContent = activeCarts;
+  document.getElementById('kpiTotal').textContent = totalCarts;
+  document.getElementById('kpiSwaps').textContent = swapsToday;
+  document.getElementById('kpiCO2').textContent = co2Month.toLocaleString();
+  document.getElementById('kpiUptime').textContent = alertCount > 0 ? '99.2%' : '99.8%';
+
+  // Revenue
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('revPeriod').textContent = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('revMRR').textContent = '$' + mrr.toLocaleString();
+  document.getElementById('revARR').textContent = '$' + arr.toLocaleString();
+  document.getElementById('revBlended').textContent = '$' + blended + ' blended avg';
+  document.getElementById('revMargin').textContent = margin + '%';
+  document.getElementById('marginFill').style.width = margin + '%';
+
+  // Impact
+  document.getElementById('impGal').textContent = galMonth.toLocaleString();
+  document.getElementById('impTrees').textContent = treesMonth;
+  document.getElementById('impHours').textContent = noiseHours.toLocaleString();
+
+  // Fleet table
+  renderFleet();
+
+  // AI Insights
+  renderInsights();
+
+  // Activity feed
+  renderFeed(now);
+
+  document.getElementById('fleetUpdate').textContent = 'updated ' +
+    now.toLocaleTimeString('en-US', timeFmtSec);
+}
+
+function renderFleet() {
+  const tbody = document.getElementById('fleetBody');
+  tbody.innerHTML = FLEET.map(v => {
+    const socClass = v.soc > 60 ? 'high' : v.soc > 30 ? 'mid' : 'low';
+    const st = STATUS_MAP[v.status] || STATUS_MAP.on_street;
+    const loc = (v.status === 'hub_charging' || v.status === 'hub_ready')
+      ? v.hub : v.street;
+    const isAlert = v.status === 'alert';
+    const textClass = isAlert ? 'status-text alert-text' : 'status-text';
+    return `<tr>
+      <td><div class="vendor-name">${v.name}</div><div class="vendor-id">${v.id}</div></td>
+      <td><span class="vendor-loc">${loc}</span></td>
+      <td><span class="vendor-tier ${TIER_CLASS[v.tier]}">${v.tier}</span></td>
+      <td><span class="status-dot ${st.dot}"></span><span class="${textClass}">${st.label}</span></td>
+      <td><div class="soc-wrap">
+        <div class="soc-bar"><div class="soc-fill ${socClass}" style="width:${v.soc}%"></div></div>
+        <span class="soc-pct ${socClass}">${v.soc}%</span>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderInsights() {
+  const alertVendor = FLEET.find(v => v.status === 'alert');
+  const lowSoc = FLEET.filter(v => v.status === 'on_street' && v.soc < 50).sort((a,b) => a.soc - b.soc);
+
+  let html = '';
+
+  // Alert insight
+  if (alertVendor) {
+    html += `<div class="insight">
+      <span class="insight-icon">🚨</span>
+      <div class="insight-body">
+        <div class="insight-text"><strong>${alertVendor.id}</strong> (${alertVendor.name}) — ${alertVendor.alert}. Recommend immediate swap at ${alertVendor.hub}.</div>
+        <span class="insight-action red" onclick="this.textContent='Push sent ✓'; this.style.pointerEvents='none'">Push alert to vendor</span>
+        <div class="insight-conf">Confidence: 94% · Source: BMS telemetry via OCPP</div>
+      </div>
+    </div>`;
+  }
+
+  // Low SoC prediction
+  if (lowSoc.length > 0) {
+    const v = lowSoc[0];
+    const hoursLeft = Math.round((v.soc / 100) * 8 * 10) / 10;
+    html += `<div class="insight">
+      <span class="insight-icon">🔋</span>
+      <div class="insight-body">
+        <div class="insight-text"><strong>${v.id}</strong> (${v.name}) at ${v.soc}% — estimated ${hoursLeft}h remaining. SoC dropping faster than daily average. Suggest early swap notification.</div>
+        <span class="insight-action" onclick="this.textContent='WhatsApp sent ✓'; this.style.pointerEvents='none'">Send early swap reminder</span>
+        <div class="insight-conf">Confidence: 87% · Model: discharge rate × ambient temp</div>
+      </div>
+    </div>`;
+  }
+
+  // Demand prediction
+  html += `<div class="insight">
+    <span class="insight-icon">📈</span>
+    <div class="insight-body">
+      <div class="insight-text">Weekend demand spike predicted for <strong>Queens 11368</strong> — 3 additional packs recommended at Queens Hub (Jackson Hts) by Friday 6 PM.</div>
+      <span class="insight-action" onclick="this.textContent='Dispatch flagged ✓'; this.style.pointerEvents='none'">Flag for van dispatch</span>
+      <div class="insight-conf">Confidence: 91% · Model: 8-week swap history × weather × events</div>
+    </div>
+  </div>`;
+
+  // Block Captain opportunity
+  html += `<div class="insight">
+    <span class="insight-icon">🏆</span>
+    <div class="insight-body">
+      <div class="insight-text"><strong>Midtown Hub</strong> has 4 active carts — 2 more to qualify as Electrified Block. 3 non-subscriber vendors detected at same commissary. Block Captain activation recommended.</div>
+      <span class="insight-action" onclick="this.textContent='Campaign queued ✓'; this.style.pointerEvents='none'">Queue referral campaign</span>
+      <div class="insight-conf">Confidence: 78% · Source: commissary log cross-reference</div>
+    </div>
+  </div>`;
+
+  document.getElementById('aiInsights').innerHTML = html;
+}
+
+function renderFeed(now) {
+  const activities = [
+    { icon: "🚨", text: "<strong>CZ-003</strong> (Wei's Dumplings) — BMS alert triggered, push notification sent to vendor via WhatsApp", time: ago(4), isAlert: true },
+    { icon: "🔋", text: "<strong>CZ-005</strong> (Juan's Tacos) — battery returned to Queens Hub, charging started (23% → 100%)", time: ago(12) },
+    { icon: "⚡", text: "<strong>CZ-010</strong> (Liang's Noodles) — battery fully charged at Queens Hub, ready for pickup", time: ago(18) },
+    { icon: "✅", text: "<strong>CZ-004</strong> (Karim's Gyro) — daily DOHMH commissary log auto-generated and filed", time: ago(45) },
+    { icon: "🔋", text: "<strong>CZ-011</strong> (Diego's Churros) — battery swap completed at Midtown Hub", time: ago(58) },
+    { icon: "🤖", text: "AI model retrained on 16-day swap history — demand prediction updated for all hubs", time: ago(90) },
+    { icon: "🆕", text: "<strong>CZ-012</strong> (Priya's Biryani) — new subscriber onboarded, Gold tier, cart converted overnight", time: ago(120) },
+    { icon: "📊", text: "Monthly impact report generated — <strong>" + co2Month.toLocaleString() + " kg CO₂</strong> avoided", time: ago(180) },
+  ];
+
+  document.getElementById('feedList').innerHTML = activities.map(a =>
+    `<li>
+      <span class="feed-icon">${a.icon}</span>
+      <span class="feed-text">${a.text}</span>
+      <span class="feed-time">${a.time}</span>
+    </li>`
+  ).join('');
+}
+
+function ago(minutes) {
+  if (minutes < 60) return minutes + 'm ago';
+  return Math.floor(minutes / 60) + 'h ago';
+}
+
+// === LIVE SIMULATION ===
+render();
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US', timeFmt);
+
+  // Randomly fluctuate SOC
+  FLEET.forEach(v => {
+    if (v.status === 'on_street' && Math.random() > 0.7) {
+      v.soc = Math.max(12, v.soc - 1);
+    }
+    if (v.status === 'hub_charging' && Math.random() > 0.5) {
+      v.soc = Math.min(100, v.soc + 2);
+    }
+  });
+
+  // Re-render fleet table
+  const tbody = document.getElementById('fleetBody');
+  const rows = tbody.querySelectorAll('tr');
+  FLEET.forEach((v, i) => {
+    if (rows[i]) {
+      const socClass = v.soc > 60 ? 'high' : v.soc > 30 ? 'mid' : 'low';
+      const fill = rows[i].querySelector('.soc-fill');
+      const pct = rows[i].querySelector('.soc-pct');
+      if (fill) { fill.style.width = v.soc + '%'; fill.className = 'soc-fill ' + socClass; }
+      if (pct) { pct.textContent = v.soc + '%'; pct.className = 'soc-pct ' + socClass; }
+    }
+  });
+
+  document.getElementById('fleetUpdate').textContent = 'updated ' +
+    new Date().toLocaleTimeString('en-US', timeFmtSec);
+}, 5000);
+</script>
+</body>
+</html>
