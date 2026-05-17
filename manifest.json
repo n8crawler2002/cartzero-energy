@@ -1,24 +1,23 @@
 {
-  "name": "CartZero — Clean Energy for NYC Food Carts",
+  "name": "CartZero",
   "short_name": "CartZero",
-  "description": "Replace gasoline generators with clean battery power. Swap daily at your commissary.",
+  "description": "Clean energy for NYC food carts",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#070e1a",
   "theme_color": "#070e1a",
-  "orientation": "portrait-primary",
   "icons": [
+    {"src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ],
+  "shortcuts": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "name": "Tracker",
+      "short_name": "Tracker",
+      "description": "CartZero private tracker",
+      "url": "/tracker.html",
+      "icons": [{"src": "/icons/icon-192.png", "sizes": "192x192"}]
     }
   ]
 }
