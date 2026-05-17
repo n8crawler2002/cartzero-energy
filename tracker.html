@@ -105,9 +105,51 @@ button{font-family:inherit;cursor:pointer}
 
 /* Empty state */
 .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
+
+/* Password gate */
+#gate{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;
+}
+.gate-logo{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px}
+.gate-logo span{color:var(--orange)}
+.gate-sub{font-size:13px;color:var(--text3);margin-bottom:32px}
+.gate-input{
+  width:100%;max-width:280px;background:var(--bg2);
+  border:0.5px solid var(--border2);border-radius:12px;
+  padding:14px 16px;color:var(--text);font-size:16px;
+  text-align:center;letter-spacing:0.08em;outline:none;
+  -webkit-appearance:none;
+}
+.gate-input:focus{border-color:var(--orange)}
+.gate-btn{
+  margin-top:12px;width:100%;max-width:280px;
+  background:var(--orange);color:#fff;border:none;
+  border-radius:12px;padding:14px;font-size:15px;font-weight:600;
+  cursor:pointer;
+}
+.gate-btn:active{background:var(--orange2)}
+.gate-err{
+  font-size:12px;color:var(--red);margin-top:10px;
+  opacity:0;transition:opacity .2s;
+}
+.gate-err.show{opacity:1}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake .3s ease}
 </style>
 </head>
 <body>
+
+
+<div id="gate">
+  <div class="gate-logo">CART<span>ZERO.</span></div>
+  <div class="gate-sub">Tracker — private access</div>
+  <input id="pw" class="gate-input" type="password" placeholder="Password"
+    onkeydown="if(event.key==='Enter')checkPw()">
+  <button class="gate-btn" onclick="checkPw()">Enter</button>
+  <div class="gate-err" id="gate-err">Wrong password</div>
+</div>
 
 <div class="hdr">
   <div class="hdr-top">
@@ -315,8 +357,35 @@ async function init(){
     document.getElementById('view-focus').innerHTML = '<div class="empty">&#9888; tracker.json nicht erreichbar<br><small style="color:var(--text3);margin-top:6px;display:block">Stelle sicher dass tracker.json im Repo-Root liegt</small></div>';
   }
 }
-init();
+// init() only called after auth
 
+
+
+function checkPw(){
+  const val = document.getElementById('pw').value;
+  if(val === '20_CartZero_26'){
+    sessionStorage.setItem('cz_auth','ok');
+    document.getElementById('gate').style.display='none';
+    init();
+  } else {
+    const inp = document.getElementById('pw');
+    const err = document.getElementById('gate-err');
+    inp.classList.remove('shake');
+    void inp.offsetWidth;
+    inp.classList.add('shake');
+    err.classList.add('show');
+    inp.value='';
+    setTimeout(()=>err.classList.remove('show'),2000);
+  }
+}
+// Check session on load
+if(sessionStorage.getItem('cz_auth')==='ok'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const g=document.getElementById('gate');
+    if(g) g.style.display='none';
+    init();
+  });
+}
 
 </script>
 </body>
