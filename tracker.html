@@ -140,17 +140,8 @@ button{font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
-
-
 <div id="gate">
   <div class="gate-logo">CART<span>ZERO.</span></div>
-  <div class="gate-sub">Tracker — private access</div>
-  <input id="pw" class="gate-input" type="password" placeholder="Password"
-    onkeydown="if(event.key==='Enter')checkPw()">
-  <button class="gate-btn" onclick="checkPw()">Enter</button>
-  <div class="gate-err" id="gate-err">Wrong password</div>
-</div>
-
 <div class="hdr">
   <div class="hdr-top">
     <div class="hdr-logo">CART<span>ZERO.</span> tracker</div>
@@ -179,223 +170,208 @@ button{font-family:inherit;cursor:pointer}
   <div id="view-all" style="display:none"></div>
   <div id="view-search" style="display:none"></div>
 </div>
-
 <script>
-let DATA = [];
-const DL = [{"d": "2026-05-28", "label": "FOIL NYC Parks — Antwort fällig", "u": true}, {"d": "2026-06-05", "label": "YC S2026 — Interview Decision", "u": true}, {"d": "2026-07-20", "label": "cartzero.app — Porkbun registrieren", "u": false}, {"d": "2026-09-22", "label": "Climate Week NYC — Nest Campus Javits", "u": false}, {"d": "2026-09-23", "label": "Ceres Invite-Only — Convene 75 Rockefeller", "u": false}, {"d": "2026-11-10", "label": "USPTO Paris Convention (6 Mo ab DPMA)", "u": false}, {"d": "2026-12-31", "label": "BCS Permits Central Park — Renewal Leverage", "u": false}];
 
-const CC = {yc:'#378ADD',out:'#1D9E75',pro:'#7F77DD',ops:'#8899b4',res:'#EF9F27',cli:'#D85A30',fun:'#639922',ppl:'#D4537E',leg:'#E24B4A',hub:'#1D9E75',str:'#7F77DD'};
-const CL = {yc:'YC',out:'outreach',pro:'product',ops:'ops',res:'research',cli:'climate',fun:'funding',ppl:'people',leg:'legal',hub:'hub',str:'strategy'};
-
-let currentView = 'focus';
+const DL=[
+  {"d":"2026-05-28","label":"FOIL NYC Parks \u2014 Antwort f\u00e4llig","u":true},
+  {"d":"2026-06-05","label":"YC S2026 \u2014 Interview Decision","u":true},
+  {"d":"2026-07-20","label":"cartzero.app \u2014 Porkbun registrieren","u":false},
+  {"d":"2026-09-22","label":"Climate Week NYC \u2014 Nest Campus Javits","u":false},
+  {"d":"2026-09-23","label":"Ceres Invite-Only \u2014 Convene 75 Rockefeller","u":false},
+  {"d":"2026-11-10","label":"USPTO Paris Convention (6 Mo ab DPMA)","u":false},
+  {"d":"2026-12-31","label":"BCS Permits Central Park \u2014 Renewal Leverage","u":false}
+];
+var DATA=[];
+var CC={yc:'#378ADD',out:'#1D9E75',pro:'#7F77DD',ops:'#8899b4',res:'#EF9F27',cli:'#D85A30',fun:'#639922',ppl:'#D4537E',leg:'#E24B4A',hub:'#1D9E75',str:'#7F77DD'};
+var CL={yc:'YC',out:'outreach',pro:'product',ops:'ops',res:'research',cli:'climate',fun:'funding',ppl:'people',leg:'legal',hub:'hub',str:'strategy'};
+var currentView='focus';
 
 function pill(c){
-  const col = CC[c]||'#8899b4';
-  const lbl = CL[c]||c;
-  return `<span class="pill" style="background:${col}22;color:${col}">${lbl}</span>`;
+  var col=CC[c]||'#8899b4';
+  var lbl=CL[c]||c;
+  return '<span class="pill" style="background:'+col+'22;color:'+col+'">'+lbl+'</span>';
 }
 
-function card(t, accentClass=''){
-  const note = t.n ? `<div class="card-note">${t.n.replace(/
-/g,'<br>')}</div>` : '';
-  const chevron = t.n ? `<span class="card-chevron">&#8964;</span>` : '';
-  const dateStr = t.d ? `<span class="card-date">${t.d}</span>` : '';
-  return `<div class="card ${accentClass}" onclick="toggleCard(this)">
-    <div class="card-title">${t.t}</div>
-    <div class="card-row">${pill(t.c)}${dateStr}${chevron}</div>
-    ${note}
-  </div>`;
+function card(t,ac){
+  ac=ac||'';
+  var note=t.n?'<div class="card-note">'+t.n.replace(/\n/g,'<br>')+'</div>':'';
+  var chev=t.n?'<span class="card-chevron">&#8964;</span>':'';
+  var ds=t.d?'<span class="card-date">'+t.d+'</span>':'';
+  return '<div class="card '+ac+'" onclick="toggleCard(this)">'+
+    '<div class="card-title">'+t.t+'</div>'+
+    '<div class="card-row">'+pill(t.c)+ds+chev+'</div>'+
+    note+'</div>';
 }
 
-function toggleCard(el){
-  el.classList.toggle('open');
+function toggleCard(el){el.classList.toggle('open');}
+
+function daysFrom(ds){
+  var d=new Date(ds);
+  var now=new Date('2026-05-17');
+  return Math.round((d-now)/86400000);
 }
 
-function daysFrom(dateStr){
-  if(!dateStr) return null;
-  const d = new Date(dateStr);
-  const now = new Date('2026-05-17');
-  const diff = Math.round((d - now) / 86400000);
-  return diff;
+function matches(t,q){
+  if(!q)return true;
+  var s=(t.t+' '+(t.n||'')+' '+t.c).toLowerCase();
+  return q.toLowerCase().split(' ').every(function(w){return s.indexOf(w)>=0;});
 }
 
-function renderFocus(filter=''){
-  const hi_todos = DATA.filter(t => t.col==='todo' && t.p==='hi' && matches(t,filter));
-  const waits = DATA.filter(t => t.col==='wait' && matches(t,filter));
-
-  let html = '';
-  if(hi_todos.length){
-    html += `<div class="sec"><span class="sec-dot" style="background:#E24B4A"></span>Jetzt handeln (${hi_todos.length})</div>`;
-    hi_todos.forEach(t => html += card(t,'urgent'));
+function renderFocus(filter){
+  filter=filter||'';
+  var hi=DATA.filter(function(t){return t.col==='todo'&&t.p==='hi'&&matches(t,filter);});
+  var wa=DATA.filter(function(t){return t.col==='wait'&&matches(t,filter);});
+  var h='';
+  if(hi.length){
+    h+='<div class="sec"><span class="sec-dot" style="background:#E24B4A"></span>Jetzt handeln ('+hi.length+')</div>';
+    hi.forEach(function(t){h+=card(t,'urgent');});
   }
-  if(waits.length){
-    html += `<div class="sec"><span class="sec-dot" style="background:#EF9F27"></span>Watching (${waits.length})</div>`;
-    waits.forEach(t => html += card(t,'hi'));
+  if(wa.length){
+    h+='<div class="sec"><span class="sec-dot" style="background:#EF9F27"></span>Watching ('+wa.length+')</div>';
+    wa.forEach(function(t){h+=card(t,'hi');});
   }
-  if(!html) html = '<div class="empty">Nichts zu zeigen</div>';
-  document.getElementById('view-focus').innerHTML = html;
+  if(!h)h='<div class="empty">Nichts zu zeigen</div>';
+  document.getElementById('view-focus').innerHTML=h;
 }
 
 function renderTimeline(){
-  const today = new Date('2026-05-17');
-  let html = '<div class="tl">';
-  DL.forEach(dl => {
-    const days = daysFrom(dl.d);
-    const dStr = days < 0 ? 'vergangen' : days === 0 ? 'heute' : `in ${days} Tagen`;
-    const dotCls = dl.u ? 'u' : (days < 30 ? 'soon' : '');
-    const dateLabel = dl.d.split('-').slice(1).reverse().join('.') + '.' + dl.d.split('-')[0];
-    html += `<div class="tl-item">
-      <div class="tl-left"><div class="tl-dot ${dotCls}"></div><div class="tl-date-str">${dateLabel}</div></div>
-      <div><div class="tl-label">${dl.label}</div><div class="tl-days">${dStr}</div></div>
-    </div>`;
+  var h='<div class="tl">';
+  DL.forEach(function(dl){
+    var days=daysFrom(dl.d);
+    var dstr=days<0?'vergangen':days===0?'heute':'in '+days+' Tagen';
+    var dc=dl.u?'u':(days<30?'soon':'');
+    var parts=dl.d.split('-');
+    var dlabel=parts[2]+'.'+parts[1]+'.'+parts[0];
+    h+='<div class="tl-item"><div class="tl-left"><div class="tl-dot '+dc+'"></div>'+
+      '<div class="tl-date-str">'+dlabel+'</div></div>'+
+      '<div><div class="tl-label">'+dl.label+'</div>'+
+      '<div class="tl-days">'+dstr+'</div></div></div>';
   });
-  html += '</div>';
-  document.getElementById('view-timeline').innerHTML = html;
+  h+='</div>';
+  document.getElementById('view-timeline').innerHTML=h;
 }
 
-function group(title, items, collapsed=false, accentClass=''){
-  if(!items.length) return '';
-  const id = 'grp-' + Math.random().toString(36).slice(2);
-  const body = items.map(t => card(t, accentClass)).join('');
-  const display = collapsed ? 'none' : 'block';
-  return `<div class="group">
-    <div class="group-hdr" onclick="toggleGroup('${id}')">
-      <div class="group-hdr-left">
-        <span class="group-title">${title}</span>
-        <span class="group-count">${items.length}</span>
-      </div>
-      <span style="color:var(--text3);font-size:12px">&#8964;</span>
-    </div>
-    <div id="${id}" class="group-body" style="display:${display}">${body}</div>
-  </div>`;
+function group(title,items,collapsed,ac){
+  if(!items.length)return'';
+  var id='g'+Math.floor(Math.random()*999999);
+  var body=items.map(function(t){return card(t,ac);}).join('');
+  var disp=collapsed?'none':'block';
+  return '<div class="group">'+
+    '<div class="group-hdr" onclick="toggleGroup(\''+id+'\')">'+
+    '<div class="group-hdr-left">'+
+    '<span class="group-title">'+title+'</span>'+
+    '<span class="group-count">'+items.length+'</span></div>'+
+    '<span style="color:var(--text3);font-size:12px">&#8964;</span></div>'+
+    '<div id="'+id+'" class="group-body" style="display:'+disp+'">'+body+'</div></div>';
 }
 
 function toggleGroup(id){
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  var el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
 }
 
-function renderAll(filter=''){
-  const todo_hi = DATA.filter(t => t.col==='todo' && t.p==='hi' && matches(t,filter));
-  const todo_mi = DATA.filter(t => t.col==='todo' && t.p!=='hi' && matches(t,filter));
-  const waits   = DATA.filter(t => t.col==='wait' && matches(t,filter));
-  const done    = DATA.filter(t => t.col==='done' && matches(t,filter));
-  const park    = DATA.filter(t => t.col==='park' && matches(t,filter));
-
-  let html = '';
-  html += group('To do — high priority', todo_hi, false, 'urgent');
-  html += group('Watching', waits, false, 'hi');
-  html += group('To do — weitere', todo_mi, true);
-  html += group('Done', done, true);
-  html += group('Parked', park, true);
-  if(!html) html = '<div class="empty">Keine Treffer</div>';
-  document.getElementById('view-all').innerHTML = html;
-}
-
-function matches(t, q){
-  if(!q) return true;
-  const s = (t.t + ' ' + (t.n||'') + ' ' + t.c).toLowerCase();
-  return q.toLowerCase().split(' ').every(w => s.includes(w));
+function renderAll(filter){
+  filter=filter||'';
+  var th=DATA.filter(function(t){return t.col==='todo'&&t.p==='hi'&&matches(t,filter);});
+  var tm=DATA.filter(function(t){return t.col==='todo'&&t.p!=='hi'&&matches(t,filter);});
+  var wa=DATA.filter(function(t){return t.col==='wait'&&matches(t,filter);});
+  var dn=DATA.filter(function(t){return t.col==='done'&&matches(t,filter);});
+  var pk=DATA.filter(function(t){return t.col==='park'&&matches(t,filter);});
+  var h=group('To do — high priority',th,false,'urgent')+
+        group('Watching',wa,false,'hi')+
+        group('To do — weitere',tm,true,'')+
+        group('Done',dn,true,'')+
+        group('Parked',pk,true,'');
+  if(!h)h='<div class="empty">Keine Treffer</div>';
+  document.getElementById('view-all').innerHTML=h;
 }
 
 function switchView(v){
-  currentView = v;
-  document.getElementById('search').value = '';
-  ['focus','timeline','all','search'].forEach(n => {
-    document.getElementById('view-'+n).style.display = 'none';
+  currentView=v;
+  document.getElementById('search').value='';
+  ['focus','timeline','all','search'].forEach(function(n){
+    document.getElementById('view-'+n).style.display='none';
   });
-  document.getElementById('view-'+v).style.display = 'block';
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('on', ['focus','timeline','all'][i]===v);
+  document.getElementById('view-'+v).style.display='block';
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('on',['focus','timeline','all'][i]===v);
   });
-  if(v==='timeline') renderTimeline();
-  else if(v==='all') renderAll();
+  if(v==='timeline')renderTimeline();
+  else if(v==='all')renderAll();
   else renderFocus();
 }
 
 function onSearch(){
-  const q = document.getElementById('search').value.trim();
-  if(!q){
-    switchView(currentView==='search' ? 'focus' : currentView);
-    return;
-  }
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  ['focus','timeline','all'].forEach(n => document.getElementById('view-'+n).style.display = 'none');
-  const results = DATA.filter(t => matches(t, q));
-  let html = '';
+  var q=document.getElementById('search').value.trim();
+  if(!q){switchView(currentView==='search'?'focus':currentView);return;}
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  ['focus','timeline','all'].forEach(function(n){
+    document.getElementById('view-'+n).style.display='none';
+  });
+  var results=DATA.filter(function(t){return matches(t,q);});
+  var h='';
   if(results.length){
-    results.forEach(t => html += card(t, t.col==='todo' && t.p==='hi' ? 'urgent' : t.col==='wait' ? 'hi' : ''));
-  } else {
-    html = '<div class="empty">Keine Treffer fuer "'+q+'"</div>';
-  }
-  document.getElementById('view-search').innerHTML = html;
-  document.getElementById('view-search').style.display = 'block';
-}
-
-// Init — load JSON from source of truth
-async function init(){
-  const vf = document.getElementById('view-focus');
-  vf.style.display = 'block';
-  vf.innerHTML = '<div class="empty" style="padding:60px 20px"><div style="font-size:24px;margin-bottom:12px">&#8987;</div>Lade tracker.json...</div>';
-  try {
-    const res = await fetch('/tracker.json', {cache: 'no-cache'});
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    DATA = await res.json();
-    const total = DATA.length;
-    const done = DATA.filter(t=>t.col==='done').length;
-    const todo = DATA.filter(t=>t.col==='todo').length;
-    const wait = DATA.filter(t=>t.col==='wait').length;
-    const park = DATA.filter(t=>t.col==='park').length;
-    document.getElementById('s-todo').textContent = todo;
-    document.getElementById('s-wait').textContent = wait;
-    document.getElementById('s-done').textContent = done;
-    document.getElementById('s-park').textContent = park;
-    // get date from newest ticket
-    const dates = DATA.map(t=>t.d).filter(Boolean).sort().reverse();
-    const latest = dates[0] || '2026-05-17';
-    document.getElementById('meta-date').textContent = total + ' tickets · ' + latest.split('-').reverse().join('.');
-    renderFocus();
-  } catch(e) {
-    document.getElementById('view-focus').innerHTML = `
-      <div style="padding:40px 20px;text-align:center">
-        <div style="font-size:28px;margin-bottom:12px">&#9888;</div>
-        <div style="font-size:14px;color:var(--orange);margin-bottom:8px">tracker.json nicht gefunden</div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.6">
-          Bitte <b>tracker.json</b> ins<br>GitHub Repo-Root uploaden.<br><br>
-          <span style="color:var(--text3);font-size:11px">${e.message}</span>
-        </div>
-      </div>`;
-    ['s-todo','s-wait','s-done','s-park'].forEach(id => {
-      document.getElementById(id).textContent = '?';
+    results.forEach(function(t){
+      var ac=t.col==='todo'&&t.p==='hi'?'urgent':t.col==='wait'?'hi':'';
+      h+=card(t,ac);
     });
+  }else{
+    h='<div class="empty">Keine Treffer</div>';
+  }
+  document.getElementById('view-search').innerHTML=h;
+  document.getElementById('view-search').style.display='block';
+}
+
+async function init(){
+  var vf=document.getElementById('view-focus');
+  vf.style.display='block';
+  vf.innerHTML='<div class="empty" style="padding:60px 20px">&#8987; Lade...</div>';
+  try{
+    var res=await fetch('/tracker.json',{cache:'no-cache'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    DATA=await res.json();
+    var total=DATA.length;
+    var done=DATA.filter(function(t){return t.col==='done';}).length;
+    var todo=DATA.filter(function(t){return t.col==='todo';}).length;
+    var wait=DATA.filter(function(t){return t.col==='wait';}).length;
+    var park=DATA.filter(function(t){return t.col==='park';}).length;
+    document.getElementById('s-todo').textContent=todo;
+    document.getElementById('s-wait').textContent=wait;
+    document.getElementById('s-done').textContent=done;
+    document.getElementById('s-park').textContent=park;
+    document.getElementById('meta-date').textContent=total+' tickets';
+    renderFocus();
+  }catch(e){
+    document.getElementById('view-focus').innerHTML=
+      '<div style="padding:40px 20px;text-align:center">'+
+      '<div style="font-size:28px;margin-bottom:12px">&#9888;</div>'+
+      '<div style="font-size:14px;color:var(--orange);margin-bottom:8px">tracker.json Fehler</div>'+
+      '<div style="font-size:12px;color:var(--text2)">'+e.message+'</div></div>';
   }
 }
-// init() only called after auth
-
-
 
 function checkPw(){
-  const val = document.getElementById('pw').value;
-  if(val === '20_CartZero_26'){
+  var val=document.getElementById('pw').value;
+  if(val==='20_CartZero_26'){
     sessionStorage.setItem('cz_auth','ok');
     document.getElementById('gate').style.display='none';
     init();
-  } else {
-    const inp = document.getElementById('pw');
-    const err = document.getElementById('gate-err');
+  }else{
+    var inp=document.getElementById('pw');
+    var err=document.getElementById('gate-err');
     inp.classList.remove('shake');
     void inp.offsetWidth;
     inp.classList.add('shake');
     err.classList.add('show');
     inp.value='';
-    setTimeout(()=>err.classList.remove('show'),2000);
+    setTimeout(function(){err.classList.remove('show');},2000);
   }
 }
-// Check session on load
+
 if(sessionStorage.getItem('cz_auth')==='ok'){
-  document.addEventListener('DOMContentLoaded',()=>{
-    const g=document.getElementById('gate');
-    if(g) g.style.display='none';
+  document.addEventListener('DOMContentLoaded',function(){
+    var g=document.getElementById('gate');
+    if(g)g.style.display='none';
     init();
   });
 }
