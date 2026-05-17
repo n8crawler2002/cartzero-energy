@@ -360,10 +360,20 @@ async function init(){
   }
 }
 
+function isAuthed(){
+  var exp=localStorage.getItem('cz_auth');
+  if(!exp)return false;
+  if(Date.now()>parseInt(exp)){localStorage.removeItem('cz_auth');return false;}
+  return true;
+}
+function lockTracker(){
+  localStorage.removeItem('cz_auth');
+  location.reload();
+}
 function checkPw(){
   var val=document.getElementById('pw').value;
   if(val==='20_CartZero_26'){
-    sessionStorage.setItem('cz_auth','ok');
+    localStorage.setItem('cz_auth', Date.now() + 28800000);
     document.getElementById('gate').style.display='none';
     init();
   }else{
@@ -380,7 +390,7 @@ function checkPw(){
 
 // Always init on load — gate covers screen until auth
 document.addEventListener('DOMContentLoaded', function(){
-  if(sessionStorage.getItem('cz_auth')==='ok'){
+  if(isAuthed()){
     var g=document.getElementById('gate');
     if(g)g.style.display='none';
   }
